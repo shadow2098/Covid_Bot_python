@@ -5,6 +5,7 @@ import json
 import aiosqlite
 from quart import Quart
 from quart import request
+#test -
 
 TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
 TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
