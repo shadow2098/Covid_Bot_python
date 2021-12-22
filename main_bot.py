@@ -5,7 +5,6 @@ import json
 import aiosqlite
 from quart import Quart
 from quart import request
-#test -
 
 TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
 TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
@@ -27,9 +26,10 @@ class BotAdmins:
         
 
 class BotManager:
-    def __init__(self, admins_manager, telegram_manager):
+    def __init__(self, admins_manager, telegram_manager, data_manager):
         self.__admins_manager = admins_manager
         self.__telegram_manager = telegram_manager
+        self.__data_manager = data_manager
 
     async def check_user(self, chat_id):
 
@@ -154,23 +154,23 @@ class BotManager:
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id , "country_information")
         cur = await conn.execute("SELECT * FROM actions WHERE chat_id=? AND action_name=?", data)
-        user_data = await cur.fetcall()
+        user_data = await cur.fetchall()
         if len(user_data) != 0:
+            return "Please, send country name"
             
         await self.create_action(chat_id, "country_information")
-        return "Information about this country will be send to you daily"
+        return "Please, send country name"
         
     async def create_global_message_action(self, chat_id):
 
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id, 1)
-        cur = await conn.execute("SELECT * FROM users WHERE chat_id=? AND customer=?", data)
+        cur = await conn.execute("SELECT * FROM users WHERE chat_id=? AND admin=?", data)
         user_data = await cur.fetchall()
         await cur.close()
         await conn.close()
         
         if len(user_data) != 0:
-            if not await BotAdmins.user_is_admin(chat_id):
                 return "Not enought rights"
 
         await self.create_action(chat_id, "global_message")
@@ -253,12 +253,72 @@ class BotManager:
             main_list = []
     
             return "Message has been send sucsesfully"
-        
+
+        elif action_name == "country_information":
+
+            res = await self.__data_manager.check_country(msg)        
+            if res == "There is no such country in our country list, please try later":
+                conn = await aiosqlite.connect(DATABASE)
+                data = (chat_id, "country_information")
+                cur = await conn.execute("DELETE FROM actions WHERE chat_id=? AND action_name=?", data)
+                await conn.commit()
+                await cur.close()
+                await conn.close()
+                return "There is no such country in our country list, please try later"
+
+            conn = await aiosqlite.connect(DATABASE)
+            data = (chat_id, "country_information")
+            cur = await conn.execute("DELETE FROM actions WHERE chat_id=? AND action_name=?", data)
+            await conn.commit()
+            await cur.close()
+            await conn.close()
+            return await self.__data_manager.get_country_information(res)   
+
         return "Incorrect action"
 
 class DataManager:
 
-    pass
+    async def connect_api_address(self):
+        
+        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
+        response = await session.get("https://api.covid19api.com/summary")
+        print(response.status)
+        dict1 = await response.json()
+        await session.close()
+
+        return dict1
+        
+    async def check_country(self, msg):
+        
+        conn = await aiosqlite.connect("main_bot_database.db")
+        data = (msg, )
+        cur = await conn.execute("SELECT * FROM countries WHERE country_name=?", data)
+        country_data = await cur.fetchall()
+        await cur.close()
+        await conn.close()
+
+        if len(country_data) == 0:
+            return "There is no such country in our country list, please try later"
+
+        slug_key = country_data[0][1]
+        return slug_key
+    
+    async def get_country_information(self, slug_key):
+
+        dict1 = await self.connect_api_address()
+
+        for i in range(len(dict1["Countries"])):
+            
+            if dict1["Countries"][i]["Slug"] == slug_key:
+                break
+
+        str1 = "New Confirmed - " + str(dict1["Countries"][i]['NewConfirmed'])
+        str2 = "New Deaths - " + str(dict1["Countries"][i]["NewDeaths"])
+        str3 = "Total Confirmed - " + str(dict1["Countries"][i]["TotalConfirmed"])
+        str4 = "Total Deaths - " + str(dict1["Countries"][i]["TotalDeaths"])
+        final_str = str1 + ", " + str2 + ", " + str3 + ", " + str4
+        
+        return final_str
 
 class TelegramManager:
     
@@ -332,7 +392,7 @@ class TelegramManager:
             x = await bot_manager.create_global_message_action(chat_id)
             return x
 
-        elif text_message == "/command1":
+        elif text_message == "/get_information_about_country":
 
             x = await bot_manager.create_country_action(chat_id)
             return x
@@ -366,7 +426,8 @@ if __name__ == "__main__":
     
     admins_manager = BotAdmins()
     telegram_manager = TelegramManager()
-    bot_manager = BotManager(admins_manager, telegram_manager)
+    data_manager = DataManager()
+    bot_manager = BotManager(admins_manager, telegram_manager, data_manager)
     
     app.run()
     
