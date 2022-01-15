@@ -1,0 +1,4 @@
+*.db
+__pycache__/
+bot_information.json
+.DS_Store
