@@ -1,13 +1,11 @@
 import asyncio
-
-
 import aiosqlite
 
+import bot_admins_class
+import get_data
 
-
-TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
-TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
-DATABASE = "main_bot_database.db"
+DATABASE = get_data.get_variable("DATABASE")
+admins_manager = bot_admins_class.BotAdmins()
 
 class BotManager:
     def __init__(self, admins_manager, telegram_manager, data_manager):
@@ -63,12 +61,12 @@ class BotManager:
         return len(await self.get_bot_customers())
 
     async def get_amount_of_users(self, chat_id):
-        if await BotAdmins.user_is_admin(chat_id):
+        if await admins_manager.user_is_admin(chat_id):
             return await self.count_bot_customers()
         return None
 
     async def get_users_chat_id(self, chat_id):
-        if await BotAdmins.user_is_admin(chat_id):
+        if await admins_manager.user_is_admin(chat_id):
             return await self.get_bot_customers()
         return None
     
@@ -84,12 +82,12 @@ class BotManager:
             await conn.close()
             return "Incorrect chat id"
         
-        if not await BotAdmins.user_is_admin(chat_id):
+        if not await admins_manager.user_is_admin(chat_id):
             await cur.close()
             await conn.close()
             return "Not enought rights"
 
-        elif await BotAdmins.user_is_admin(user_to_be_blocked_id):
+        elif await admins_manager.user_is_admin(user_to_be_blocked_id):
             await cur.close()
             await conn.close()
             return "Admin can't block admin"
@@ -127,7 +125,7 @@ class BotManager:
         await conn.close()
 
     async def create_block_action(self, chat_id):
-        if not await BotAdmins.user_is_admin(chat_id):
+        if not await admins_manager.user_is_admin(chat_id):
             return "Not enought rights"
 
         await self.create_action(chat_id, "block_user")
@@ -177,7 +175,7 @@ class BotManager:
 
         if action_name == "block_user":
             
-            if await BotAdmins.user_is_admin(msg):
+            if await admins_manager.user_is_admin(msg):
                 data = (chat_id, )
                 cur = await conn.execute("DELETE FROM actions WHERE chat_id=?", data)
                 await conn.commit()

@@ -1,11 +1,12 @@
 import asyncio
-
 import aiosqlite
 
-TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
-TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
-DATABASE = "main_bot_database.db"
+import get_data
+
+DATABASE = get_data.get_variable("DATABASE")
+
 class BotAdmins:
+    
     @staticmethod
     async def user_is_admin(chat_id):
         conn = await aiosqlite.connect(DATABASE)

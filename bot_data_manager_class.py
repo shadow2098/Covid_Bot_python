@@ -1,18 +1,18 @@
-
 import asyncio
 import aiohttp
 import aiosqlite
 
+import get_data
+import bot_exceptions
 
-
-TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
-TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
-DATABASE = "main_bot_database.db"
+DATABASE = get_data.get_variable("DATABASE")
 
 class DataManager:
+    
+    @staticmethod
+    @bot_exceptions.check_function
+    async def connect_api_address():
 
-    async def connect_api_address(self):
-        
         session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
         response = await session.get("https://api.covid19api.com/summary")
         print(response.status)
@@ -20,10 +20,10 @@ class DataManager:
         await session.close()
 
         return dict1
-        
+
     async def check_country(self, msg):
-        
-        conn = await aiosqlite.connect("main_bot_database.db")
+
+        conn = await aiosqlite.connect(DATABASE)
         data = (msg, )
         cur = await conn.execute("SELECT * FROM countries WHERE country_name=?", data)
         country_data = await cur.fetchall()
@@ -38,10 +38,10 @@ class DataManager:
     
     async def get_country_information(self, slug_key):
 
-        dict1 = await self.connect_api_address()
+        dict1 = await DataManager.connect_api_address()
 
         for i in range(len(dict1["Countries"])):
-            
+
             if dict1["Countries"][i]["Slug"] == slug_key:
                 break
 

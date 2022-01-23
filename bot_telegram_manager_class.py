@@ -3,18 +3,21 @@ import asyncio
 import aiohttp
 import json
 
+import get_data
+import bot_exceptions
 
-TELEGRAM_TOKEN = "5069072255:AAHWjosTYGmR56MQ6Sm16uOFuYEu9L3XrXw"
+TELEGRAM_TOKEN = get_data.get_variable("TELEGRAM_TOKEN")
 TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
-DATABASE = "main_bot_database.db"
 
 class TelegramManager:
 
-    async def bind_bot_manager(self, bot_manager):
+    def bind_bot_manager(self, bot_manager):
         self.__bot_manager = bot_manager
     
     @staticmethod
+    @bot_exceptions.check_function
     async def send_message(chat_id, msg):
+        
         target = TELEGRAM_URL + "sendMessage"
 
         data = {
@@ -28,7 +31,6 @@ class TelegramManager:
         await session.close()
         
     async def responses(self, text_message, chat_id):
-    
         words = text_message.split()
         user_to_be_blocked_id = words[-1]
     
@@ -58,14 +60,12 @@ class TelegramManager:
 
         elif text_message == "Get amount of users":
             x = await self.__bot_manager.get_amount_of_users(chat_id)
-
             if x is not None:
                 return "Amount of users: " + str(x)
             return "Not enought rights"
         
         elif text_message == "Get users chat id":
             x = await self.__bot_manager.get_users_chat_id(chat_id)
-
             if x is not None:
                 return "Users chat id: " + str(x)
             return "Not enought rights"
@@ -83,7 +83,6 @@ class TelegramManager:
             return x
 
         elif text_message == "/get_information_about_country":
-
             x = await self.__bot_manager.create_country_action(chat_id)
             return x
         
