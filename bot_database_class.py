@@ -7,6 +7,7 @@ import get_data
 DATABASE = get_data.get_variable("DATABASE")
 
 class BotDatabase:
+
     @staticmethod
     async def get_countries_list():
         session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
@@ -19,7 +20,7 @@ class BotDatabase:
     def create_tables():
         list1 = asyncio.run(BotDatabase.get_countries_list())
 
-        conn = sqlite3.connect("main_bot_database.db")
+        conn = sqlite3.connect("main_bot_database")
         cur = conn.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS users (chat_id text PRIMARY KEY, customer int, admin int, blocked int)")
         cur.execute("CREATE TABLE IF NOT EXISTS actions (chat_id text, action_name text, FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE)")
@@ -31,7 +32,7 @@ class BotDatabase:
             cur.execute("INSERT INTO countries (country_name, slug) VALUES(?, ?)", data)
             conn.commit()   
         conn.close()
-        
+
     @staticmethod
     def check_file():
         try:
@@ -41,4 +42,3 @@ class BotDatabase:
             conn.close()
         except:
             BotDatabase.create_tables()
-            

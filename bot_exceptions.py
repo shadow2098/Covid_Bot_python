@@ -4,9 +4,10 @@ def check_function(function):
     async def wrapper(*args):
 
         try:
-            print("test")
-            await function(*args)
-            print(9999999)
+
+            x = await function(*args)
+            return x
+
         except Exception as e:
 
             f = open("errors.txt", "a")
@@ -15,15 +16,3 @@ def check_function(function):
             f.close()
 
     return wrapper
-
-'''
-@check_function
-async def summ():
-print(10 / 0)
-
-asyncio.run(summ())
-
-try:
-except:
-finally:
-'''

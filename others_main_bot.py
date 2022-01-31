@@ -3,19 +3,28 @@ import asyncio
 import aiosqlite
 import pprint
 import sqlite3
-'''
+
 async def main1():
     
     session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
-    response = await session.get("https://api.covid19api.com/countries")
-    #print(response.status)
+    response = await session.get("https://api.covid19api.com/country/brazil?from=2022-01-26T00:00:00Z&to=2022-01-27T00:00:00Z")
+    print(response.status)
     list1 = await response.json()
+    print(type(list1))
     await session.close()
     return list1
     
 list1 = asyncio.run(main1())
 pprint.pprint(list1)
-'''
+print("\n")
+str1 = "Confirmed - " + str(list1[0]["Confirmed"]) + "\n"
+str2 = "Total deaths - " + str(list1[0]["Deaths"]) + "\n"
+str3 = "Active - " + str(list1[0]["Active"])
+final_str = str1 + str2 + str3
+
+print(final_str)
+
+
 '''
 conn = sqlite3.connect("main_bot_database.db")
 cur = conn.cursor()

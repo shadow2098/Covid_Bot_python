@@ -1,7 +1,7 @@
 import json
 
 def get_data(file_name):
-        
+
         f = open(file_name, "r")
         data = json.load(f)
         f.close()

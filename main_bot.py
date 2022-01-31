@@ -3,6 +3,8 @@ import asyncio
 import aiohttp
 import json
 import aiosqlite
+import time
+import datetime
 from quart import Quart
 from quart import request
 
@@ -275,17 +277,47 @@ class BotManager:
 
 class DataManager:
 
-    async def connect_api_address(self):
+    @staticmethod
+    async def get_date():
+
+        today = time.strftime("%Y-%m-%d")
+
+        date1 = datetime.datetime(year=int(today[0:4]), month=int(today[5:7]), day=int(today[8:10]))
+        diff = datetime.timedelta(days=1)
+        date2 = date1 - diff
+
+        date1 = str(date1)
+        date2 = str(date2)
+
+        date1 = date1.replace(" ", "T")
+        date2 = date2.replace(" ", "T")
+        date1 += "Z"
+        date2 += "Z"
+
+        return date1, date2
+
+    @staticmethod
+    async def create_link(slug_key):
+
+        base = "https://api.covid19api.com/country/"
+        date1, date2 = await DataManager.get_date()
+
+        link = base + slug_key + "?from=" + date2 + "&to=" + date1
+        return link
+
+    @staticmethod
+    async def connect_api_address(link):
 
         session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
-        response = await session.get("https://api.covid19api.com/summary")
+        response = await session.get(link)
         print(response.status)
-        dict1 = await response.json()
+        list1 = await response.json()
         await session.close()
 
-        return dict1
+        return list1
 
-    async def check_country(self, msg):
+    @staticmethod
+    async def check_country(msg):
 
         conn = await aiosqlite.connect(DATABASE)
         data = (msg, )
@@ -300,19 +332,16 @@ class DataManager:
         slug_key = country_data[0][1]
         return slug_key
 
-    async def get_country_information(self, slug_key):
+    @staticmethod
+    async def get_country_information(slug_key):
 
-        dict1 = await self.connect_api_address()
+        link = await DataManager.create_link(slug_key)
+        list1 = await DataManager.connect_api_address(link)
 
-        for i in range(len(dict1["Countries"])):
-            if dict1["Countries"][i]["Slug"] == slug_key:
-                break
-
-        str1 = "New Confirmed - " + str(dict1["Countries"][i]['NewConfirmed'])
-        str2 = "New Deaths - " + str(dict1["Countries"][i]["NewDeaths"])
-        str3 = "Total Confirmed - " + str(dict1["Countries"][i]["TotalConfirmed"])
-        str4 = "Total Deaths - " + str(dict1["Countries"][i]["TotalDeaths"])
-        final_str = str1 + ", " + str2 + ", " + str3 + ", " + str4
+        str1 = "Confirmed - " + str(list1[0]["Confirmed"]) + "\n"
+        str2 = "Total deaths - " + str(list1[0]["Deaths"]) + "\n"
+        str3 = "Active - " + str(list1[0]["Active"])
+        final_str = str1 + str2 + str3
 
         return final_str
 
