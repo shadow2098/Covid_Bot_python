@@ -20,7 +20,7 @@ class BotDatabase:
     def create_tables():
         list1 = asyncio.run(BotDatabase.get_countries_list())
 
-        conn = sqlite3.connect("main_bot_database")
+        conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS users (chat_id text PRIMARY KEY, customer int, admin int, blocked int)")
         cur.execute("CREATE TABLE IF NOT EXISTS actions (chat_id text, action_name text, FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE)")
