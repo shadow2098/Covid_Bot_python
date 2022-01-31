@@ -4,7 +4,7 @@ import aiohttp
 import json
 
 import get_data
-import bot_exceptions
+import exceptions
 
 TELEGRAM_TOKEN = get_data.get_variable("TELEGRAM_TOKEN")
 TELEGRAM_URL = "https://api.telegram.org/bot{0}/".format(TELEGRAM_TOKEN)
@@ -15,7 +15,7 @@ class TelegramManager:
         self.__bot_manager = bot_manager
 
     @staticmethod
-    @bot_exceptions.check_function
+    @exceptions.check_function
     async def send_message(chat_id, msg):
 
         target = TELEGRAM_URL + "sendMessage"
@@ -35,7 +35,7 @@ class TelegramManager:
         words = text_message.split()
         user_to_be_blocked_id = words[-1]
 
-        if text_message == "hi" or text_message == "hello":
+        if text_message == "Hi" or text_message == "Hello":
             list1 = ["Hello",
                         "Hi",
                         "hello",
@@ -43,7 +43,7 @@ class TelegramManager:
                     ]
             return list1[random.randint(0, 3)]
 
-        elif text_message == "how are you?":
+        elif text_message == "How are you?":
             list1 = ["I'm fine",
                         "Not bad",
                         "Great",
@@ -51,7 +51,7 @@ class TelegramManager:
                     ]
             return list1[random.randint(0, 3)]
 
-        elif text_message == "goodbye" or text_message == "bye":
+        elif text_message == "Goodbye" or text_message == "Bye":
             list1 = ["We had a nice talk.Good luck",
                         "Goodbye",
                         "Bye",
@@ -59,27 +59,27 @@ class TelegramManager:
                     ]
             return list1[random.randint(0, 3)]
 
-        elif text_message == "get amount of users":
+        elif text_message == "Get amount of users":
             x = await self.__bot_manager.get_amount_of_users(chat_id)
             if x is not None:
                 return "Amount of users: " + str(x)
             return "Not enought rights"
 
-        elif text_message == "get users chat id":
+        elif text_message == "Get users chat id":
             x = await self.__bot_manager.get_users_chat_id(chat_id)
             if x is not None:
                 return "Users chat id: " + str(x)
             return "Not enought rights"
 
-        elif text_message == "block user {:s}".format(user_to_be_blocked_id):
+        elif text_message == "Block user {:s}".format(user_to_be_blocked_id):
             x = await self.__bot_manager.block_user(chat_id, user_to_be_blocked_id)
             return x
 
-        elif text_message == "block user":
+        elif text_message == "Block user":
             x = await self.__bot_manager.create_block_action(chat_id)
             return x
 
-        elif text_message == "send global message":
+        elif text_message == "Send global message":
             x = await self.__bot_manager.create_global_message_action(chat_id)
             return x
 

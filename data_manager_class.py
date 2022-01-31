@@ -5,7 +5,7 @@ import time
 import datetime
 
 import get_data
-import bot_exceptions
+import exceptions
 
 DATABASE = get_data.get_variable("DATABASE")
 
@@ -40,7 +40,7 @@ class DataManager:
         return link
 
     @staticmethod
-    @bot_exceptions.check_function
+    @exceptions.check_function
     async def connect_api_address(link):
 
         session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))

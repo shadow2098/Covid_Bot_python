@@ -1,11 +1,11 @@
 import asyncio
 import aiosqlite
 
-import bot_admins_class
+import admins_class
 import get_data
 
 DATABASE = get_data.get_variable("DATABASE")
-admins_manager = bot_admins_class.BotAdmins()
+admins_manager = admins_class.BotAdmins()
 
 class BotManager:
     def __init__(self, admins_manager, telegram_manager, data_manager):

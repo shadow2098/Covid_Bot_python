@@ -4,11 +4,11 @@ import aiosqlite
 from quart import Quart
 from quart import request
 
-import bot_admins_class
-import bot_manager_class
-import bot_data_manager_class
-import bot_telegram_manager_class
-import bot_database_class
+import admins_class
+import manager_class
+import data_manager_class
+import telegram_manager_class
+import database_class
 
 app = Quart(__name__)
 
@@ -16,7 +16,6 @@ admins_manager = None
 telegram_manager = None
 data_manager = None
 bot_manager = None
-
 
 @app.route("/", methods=["POST"])
 async def request_quart():
@@ -45,12 +44,12 @@ async def request_quart():
 
 if __name__ == "__main__":
 
-    bot_database_class.BotDatabase.check_file()
+    database_class.BotDatabase.check_file()
 
-    admins_manager = bot_admins_class.BotAdmins()
-    telegram_manager = bot_telegram_manager_class.TelegramManager()
-    data_manager = bot_data_manager_class.DataManager()
-    bot_manager = bot_manager_class.BotManager(admins_manager, telegram_manager, data_manager)
+    admins_manager = admins_class.BotAdmins()
+    telegram_manager = telegram_manager_class.TelegramManager()
+    data_manager = data_manager_class.DataManager()
+    bot_manager = manager_class.BotManager(admins_manager, telegram_manager, data_manager)
 
     telegram_manager.bind_bot_manager(bot_manager)
 
