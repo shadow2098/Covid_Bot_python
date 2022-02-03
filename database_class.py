@@ -22,7 +22,7 @@ class BotDatabase:
 
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS users (chat_id text PRIMARY KEY, customer int, admin int, blocked int)")
+        cur.execute("CREATE TABLE IF NOT EXISTS users (chat_id text PRIMARY KEY, customer int, admin int, blocked int, last_action_date text)")
         cur.execute("CREATE TABLE IF NOT EXISTS actions (chat_id text, action_name text, FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE)")
         cur.execute("CREATE TABLE IF NOT EXISTS countries (country_name text PRIMARY KEY, slug text)")
 

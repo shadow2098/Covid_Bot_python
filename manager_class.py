@@ -1,3 +1,4 @@
+import time
 import asyncio
 import aiosqlite
 
@@ -21,12 +22,15 @@ class BotManager:
         user_data = await cur.fetchall()
 
         if len(user_data) != 0:
+            data = (time.strftime("%d-%m-%Y"), chat_id)
+            cur = await conn.execute("UPDATE users SET last_action_date=? WHERE chat_id=?", data)
+            await conn.commit()
             await cur.close()
             await conn.close()
             return
 
-        data = (chat_id, 1, 0, 0)
-        cur = await conn.execute("INSERT INTO users (chat_id, customer, admin, blocked) VALUES(?, ?, ?, ?)", data)
+        data = (chat_id, 1, 0, 0, time.strftime("%d-%m-%Y"))
+        cur = await conn.execute("INSERT INTO users (chat_id, customer, admin, blocked, last_action_date) VALUES(?, ?, ?, ?, ?)", data)
         await conn.commit()
         await cur.close()
         await conn.close()
