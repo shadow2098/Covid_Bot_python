@@ -16,9 +16,14 @@ class DataManager:
 
         today = time.strftime("%Y-%m-%d")
 
-        date1 = datetime.datetime(year=int(today[0:4]), month=int(today[5:7]), day=int(today[8:10]))
+        date = datetime.datetime(year=int(today[0:4]), month=int(today[5:7]), day=int(today[8:10]))
+
         diff = datetime.timedelta(days=1)
-        date2 = date1 - diff
+        diff1 = datetime.timedelta(days=2)
+
+        date1 = date - diff
+        date2 = date - diff1
+
 
         date1 = str(date1)
         date2 = str(date2)
