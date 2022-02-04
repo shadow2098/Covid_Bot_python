@@ -1,5 +1,4 @@
-import aiohttp
-import asyncio
+import requests
 import sqlite3
 
 import get_data
@@ -9,16 +8,15 @@ DATABASE = get_data.get_variable("DATABASE")
 class BotDatabase:
 
     @staticmethod
-    async def get_countries_list():
-        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
-        response = await session.get("https://api.covid19api.com/countries")
-        list1 = await response.json()
-        await session.close()
+    def get_countries_list():
+
+        r = requests.get("https://api.covid19api.com/countries")
+        list1 = r.json()
         return list1
 
     @staticmethod
     def create_tables():
-        list1 = asyncio.run(BotDatabase.get_countries_list())
+        list1 = BotDatabase.get_countries_list()
 
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
