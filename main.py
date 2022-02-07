@@ -53,4 +53,4 @@ if __name__ == "__main__":
 
     telegram_manager.bind_bot_manager(bot_manager)
 
-    app.run(port=6000, debug=True)
+    app.run(port=6001, debug=True)
