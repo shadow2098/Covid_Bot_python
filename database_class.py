@@ -38,5 +38,6 @@ class BotDatabase:
             cur = conn.cursor()
             cur.execute("SELECT * FROM countries")
             conn.close()
+
         except:
             BotDatabase.create_tables()

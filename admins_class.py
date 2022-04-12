@@ -6,7 +6,7 @@ import get_data
 DATABASE = get_data.get_variable("DATABASE")
 
 class BotAdmins:
-    
+
     @staticmethod
     async def user_is_admin(chat_id):
         conn = await aiosqlite.connect(DATABASE)
@@ -17,5 +17,3 @@ class BotAdmins:
         await conn.close()
 
         return len(user_data) != 0
-        
-

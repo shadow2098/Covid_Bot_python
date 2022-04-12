@@ -33,7 +33,7 @@ async def request_quart():
         await bot_manager.check_user(chat_id)
         await telegram_manager.send_message(chat_id, res)
         return "Request response!"
-    
+
     except Exception as e:
 
         f = open("errors.txt", "a")

@@ -9,13 +9,13 @@ DATABASE = get_data.get_variable("DATABASE")
 admins_manager = admins_class.BotAdmins()
 
 class BotManager:
+
     def __init__(self, admins_manager, telegram_manager, data_manager):
         self.__admins_manager = admins_manager
         self.__telegram_manager = telegram_manager
         self.__data_manager = data_manager
 
     async def check_user(self, chat_id):
-
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id, )
         cur = await conn.execute("SELECT * FROM users WHERE chat_id=?", data)
@@ -34,6 +34,7 @@ class BotManager:
         await conn.commit()
         await cur.close()
         await conn.close()
+        return
 
     async def get_bot_customers(self):
         list1 = []
@@ -86,7 +87,7 @@ class BotManager:
             await conn.close()
             return "Incorrect chat id"
 
-        if not await admins_manager.user_is_admin(chat_id):
+        elif not await admins_manager.user_is_admin(chat_id):
             await cur.close()
             await conn.close()
             return "Not enought rights"
@@ -111,7 +112,6 @@ class BotManager:
             await conn.commit()
             await cur.close()
             await conn.close()
-
             return "User has been blocked sucsessfully"
 
         elif len(user_data2) != 0:
@@ -120,7 +120,6 @@ class BotManager:
         return "Incorrect chat_id"
 
     async def create_action(self, chat_id, action_name):
-
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id, action_name)
         cur = await conn.execute("INSERT INTO actions(chat_id, action_name) VALUES(?, ?)", data)
@@ -136,7 +135,6 @@ class BotManager:
         return "Please send chat id"
 
     async def create_country_action(self, chat_id):
-
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id , "country_information")
         cur = await conn.execute("SELECT * FROM actions WHERE chat_id=? AND action_name=?", data)
@@ -148,7 +146,6 @@ class BotManager:
         return "Please, send country name"
 
     async def create_global_message_action(self, chat_id):
-
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id, 1)
         cur = await conn.execute("SELECT * FROM users WHERE chat_id=? AND admin=?", data)
@@ -163,7 +160,6 @@ class BotManager:
         return "Please send message that you want to send"
 
     async def check_action(self, chat_id, msg):
-
         conn = await aiosqlite.connect(DATABASE)
         data = (chat_id, )
         cur = await conn.execute("SELECT * FROM actions WHERE chat_id=?", data)

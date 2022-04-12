@@ -72,6 +72,8 @@ class DataManager:
         link = await DataManager.create_link(slug_key)
         list1 = await DataManager.connect_api_address(link)
 
+        if len(list1) == 0:
+            return "Test"
         str1 = "Confirmed - " + str(list1[0]["Confirmed"])
         str2 = "Total deaths - " + str(list1[0]["Deaths"])
         str3 = "Active - " + str(list1[0]["Active"])
